@@ -1,0 +1,24 @@
+.landing-navbar {
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.landing-navbar-logo {
+    font-size: 1.5rem;
+    text-decoration: none;
+    color: white;
+}
+
+.landing-navbar-links a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+.landing-navbar-links a:hover {
+    text-decoration: underline;
+}
