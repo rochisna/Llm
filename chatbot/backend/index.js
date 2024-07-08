@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoDB = require("./db");
-const createUserRoutes = require("./Routes/CreateUser");
+const createUserRoutes = require("./Routes/LoginSignup");
 
 const app = express();
 const port = 5000;
