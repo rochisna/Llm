@@ -1,6 +1,9 @@
+// Login.js
+
 import React, { useState } from "react";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../CSS/Login.css";
+// import loginImage from "../assets/login-image.jpg"; // Replace with your image path
 
 function Login() {
   let navigate = useNavigate();
@@ -30,7 +33,7 @@ function Login() {
     if (!json.success) {
       alert("Invalid Credentials");
     } else {
-      navigate("/chat")
+      navigate("/chatloggedin");
     }
   };
 
@@ -40,30 +43,37 @@ function Login() {
 
   return (
     <div className="login">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={credentials.email}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={credentials.password}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      <div className="login-image">
+        {/* <img src={loginImage} alt="Login" /> */}
+      </div>
+      <div className="login-form">
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={onChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={onChange}
+              required
+            />
+          </div>
+          <button type="submit" className="login-button">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

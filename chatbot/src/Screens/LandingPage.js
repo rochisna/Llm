@@ -7,7 +7,7 @@ import Footer from "../components/Footer";
 function LandingPage() {
   const navigate = useNavigate();
   const handleGetStartedClick = () => {
-    navigate('/chat');
+    navigate("/chatunregistered");
   }
   return (
     <div>

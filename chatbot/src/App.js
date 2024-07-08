@@ -5,7 +5,8 @@ import {
   Route,
 } from "react-router-dom";
 import LandingPage from './Screens/LandingPage';
-import Chat from './Screens/Chat';
+import ChatLoggedIn from "./Screens/ChatLoggedIn";
+import ChatUnregistered from './Screens/ChatUnregistered';
 import Login from './Screens/Login';
 import SignUp from './Screens/SignUp';
 
@@ -17,7 +18,8 @@ function App() {
           <Route exact path="/" element={<LandingPage />} />
           <Route exact path="/login" element={<Login />} />
           <Route exact path="/signup" element={<SignUp />} />
-          <Route exact path="/chat" element={<Chat />} />
+          <Route exact path="/chatunregistered" element={<ChatUnregistered />} />
+          <Route exact path="/chatloggedin" element={<ChatLoggedIn />} />
         </Routes>
       </div>
     </Router>

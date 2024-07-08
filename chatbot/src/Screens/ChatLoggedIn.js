@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "../CSS/Chat.css";
+import "../CSS/ChatLoggedIn.css";
 
-export default function Chat() {
+export default function ChatLoggedIn() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
