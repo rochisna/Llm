@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import {useNavigate} from "react-router-dom";
 import "../CSS/Login.css";
 
 function Login() {
+  let navigate = useNavigate();
+
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
@@ -27,8 +30,7 @@ function Login() {
     if (!json.success) {
       alert("Invalid Credentials");
     } else {
-      alert("Login Successful");
-      // Redirect or do something else on successful login
+      navigate("/chat")
     }
   };
 

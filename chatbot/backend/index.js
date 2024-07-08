@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoDB = require("./db");
-const createUserRoutes = require("./Routes/LoginSignup");
+const apiRouter = require("./Routes/api");
 
 const app = express();
 const port = 5000;
@@ -18,7 +18,7 @@ mongoDB();
 
 app.use(express.json());
 
-app.use("/api", createUserRoutes);
+app.use("/api", apiRouter);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
