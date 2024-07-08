@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const { body, validationResult } = require("express-validator");
+const bcrypt = require("bcryptjs");
 
 router.post(
   "/signup",
@@ -20,9 +21,12 @@ router.post(
     const { email, password } = req.body;
 
     try {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
       await User.create({
         email: email,
-        password: password,
+        password: hashedPassword,
       });
 
       res.json({ success: true });
@@ -42,9 +46,9 @@ router.post("/login", async (req, res) => {
     if (!user) {
       return res.status(400).json({ errors: "Incorrect email address" });
     }
-
+    const isMatch = await bcrypt.compare(password, user.password);
     
-    if (!password === user.password) {
+    if (!isMatch) {
       return res.status(400).json({ errors: "Incorrect password" });
     }
 
