@@ -1,30 +1,39 @@
-import React from "react";
-import Footer from "../components/Footer";
+import React, { useState } from "react";
 import "../CSS/Chat.css";
 
 export default function Chat() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <div className="chat">
-      <div className="chat-container">
+      <div className={`chat-container ${sidebarOpen ? "sidebar-open" : ""}`}>
         <aside className="sidebar">
-          <div className="profile-icon">
+          <div className="profile-icon" onClick={toggleSidebar}>
             <img src="profile-placeholder.png" alt="Profile" />
           </div>
-          <button className="new-chat-button">+ New Chat</button>
-          <div className="chat-section">
-            <h4>Today</h4>
-            <div className="chat-item">Chat 1</div>
-            <div className="chat-item">Chat 2</div>
-          </div>
-          <div className="chat-section">
-            <h4>Yesterday</h4>
-            <div className="chat-item">Chat 1</div>
-            <div className="chat-item">Chat 2</div>
-          </div>
-          <div className="bottom-options">
-            <button className="logout-button">Logout</button>
-            <button className="settings-button">Settings</button>
-          </div>
+          {sidebarOpen && (
+            <>
+              <button className="new-chat-button">+ New Chat</button>
+              <div className="chat-section">
+                <h4>Today</h4>
+                <div className="chat-item">Chat 1</div>
+                <div className="chat-item">Chat 2</div>
+              </div>
+              <div className="chat-section">
+                <h4>Yesterday</h4>
+                <div className="chat-item">Chat 1</div>
+                <div className="chat-item">Chat 2</div>
+              </div>
+              <div className="bottom-options">
+                <button className="logout-button">Logout</button>
+                <button className="settings-button">Settings</button>
+              </div>
+            </>
+          )}
         </aside>
         <div className="chat-page">
           <header className="chat-header">
@@ -49,7 +58,6 @@ export default function Chat() {
           </footer>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
