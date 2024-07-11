@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "../CSS/LandingPage.css";
+// import "../CSS/LandingPage.css";
 import LandingNavbar from "../components/LandingNavbar";
 import Footer from "../components/Footer";
 
@@ -19,7 +19,7 @@ function LandingPage() {
         <p className="landing-page-description">
           Your AI-powered chatbot solution.
         </p>
-        <button className="landing-page-button" onClick={handleGetStartedClick}>
+        <button className="landing-page-button font-bold text-white" onClick={handleGetStartedClick}>
           Get Started
         </button>
       </div>
