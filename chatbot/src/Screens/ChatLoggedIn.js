@@ -7,14 +7,36 @@ function ChatLoggedIn() {
   ]);
   const [inputValue, setInputValue] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputValue.trim() === "") return;
 
     setMessages((prevMessages) => [
       ...prevMessages,
       { type: "sent", content: inputValue },
     ]);
+
+    const query = inputValue;
     setInputValue("");
+
+    try {
+      const response = await fetch("http://localhost:5000/api/something", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const data = await response.json();
+
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: "received", content: data.answer },
+      ]);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching RAG response:", error);
+    }
   };
 
   return (
@@ -23,7 +45,6 @@ function ChatLoggedIn() {
         <button className="new-chat">+ New chat</button>
         <div className="chat-list">
           <div className="chat-item">Creating HTML Links</div>
-          <div className="chat-item">New chat</div>
           <div className="chat-item">New chat</div>
           <div className="chat-item">New chat</div>
           <div className="chat-item">New chat</div>

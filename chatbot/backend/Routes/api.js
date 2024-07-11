@@ -3,6 +3,7 @@ const { body } = require("express-validator");
 const router = express.Router();
 
 const {createUser , loginUser} = require("../controllers/LoginSignupController");
+const {queryingFromRag} = require("../controllers/connectRag");
 
 router.post("/signup",
   [
@@ -18,5 +19,7 @@ router.post("/login", [
     min: 5,
   }),
 ], loginUser);
+
+router.post("/something",queryingFromRag);
 
 module.exports = router;

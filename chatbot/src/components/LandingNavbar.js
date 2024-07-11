@@ -4,15 +4,17 @@ import "../CSS/LandingNavbar.css";
 
 function LandingNavbar() {
   return (
-    <div className="landing-navbar">
-      <Link to="/" className="landing-navbar-logo">
-        YourLogo
-      </Link>
-      <div className="landing-navbar-links">
-        <Link to="/login">Login</Link>
-        <Link to="/signup">Sign Up</Link>
+    <nav className="landing-navbar">
+      <div className="logo">AgriLLM</div>
+      <div className="nav-links">
+        <Link to="/login" className="nav-link">
+          Login
+        </Link>
+        <Link to="/signup" className="nav-link">
+          Signup
+        </Link>
       </div>
-    </div>
+    </nav>
   );
 }
 

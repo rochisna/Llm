@@ -1,24 +1,31 @@
 .landing-navbar {
-    background-color: #333;
-    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-}
-
-.landing-navbar-logo {
-    font-size: 1.5rem;
-    text-decoration: none;
+    width: 100%;
+    padding: 20px;
+    background-color: transparent;
     color: white;
+    font-family: Arial, sans-serif;
 }
 
-.landing-navbar-links a {
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-link {
     color: white;
-    margin-left: 20px;
     text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
 }
 
-.landing-navbar-links a:hover {
-    text-decoration: underline;
+.nav-link:hover {
+    color: #f0f0f0;
 }
