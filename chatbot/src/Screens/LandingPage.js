@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-// import "../CSS/LandingPage.css";
 import LandingNavbar from "../components/LandingNavbar";
 import Footer from "../components/Footer";
 

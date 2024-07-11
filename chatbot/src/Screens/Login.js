@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../CSS/Login.css";
 // import loginImage from "../assets/login-image.jpg"; // Replace with your image path
 
 function Login() {

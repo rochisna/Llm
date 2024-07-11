@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "../CSS/ChatUnregistered.css";
 
 export default function ChatUnregistered() {
   return (

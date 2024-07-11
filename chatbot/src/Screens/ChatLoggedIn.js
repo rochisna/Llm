@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../CSS/ChatLoggedIn.css";
 
 function ChatLoggedIn() {
   const [messages, setMessages] = useState([
