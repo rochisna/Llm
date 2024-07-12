@@ -2,8 +2,8 @@ import React from "react";
 
 function Footer() {
   return (
-    <footer className="footer">
-      <p>&copy; 2024 AgriLLM. All rights reserved.</p>
+    <footer className="bg-gray-800 text-white p-4 text-center">
+      &copy; 2024 AgriLLM. All rights reserved.
     </footer>
   );
 }

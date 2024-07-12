@@ -12,8 +12,7 @@ const createUser = async (req, res) => {
     }
 
     const { email, password } = req.body;
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
+    const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     await User.create({
@@ -28,15 +27,15 @@ const createUser = async (req, res) => {
   }
 };
 
-
 const loginUser = async (req, res) => {
-    try {
-      const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
     let userData = await User.findOne({ email });
 
     if (!userData) {
       return res.status(400).json({ errors: "Incorrect email address" });
     }
+
     const isMatch = await bcrypt.compare(password, userData.password);
 
     if (!isMatch) {
@@ -56,6 +55,6 @@ const loginUser = async (req, res) => {
     console.error("Failed to login", error);
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
-}
+};
 
-module.exports = {createUser, loginUser};
+module.exports = { createUser, loginUser };
