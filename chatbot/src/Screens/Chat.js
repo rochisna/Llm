@@ -1,136 +1,127 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import LandingNavbar from "../components/LandingNavbar";
+import Footer from "../components/Footer";
 
-function Chat({ isAuthenticated }) {
-  const [messages, setMessages] = useState([
-    { type: "received", content: "Hello! How can I help you today?" },
-  ]);
-  const [inputValue, setInputValue] = useState("");
+function Chat() {
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const navigate = useNavigate();
+  const authToken = localStorage.getItem("authToken");
+
+  useEffect(() => {
+    if (authToken) {
+      const fetchMessages = async () => {
+        const response = await fetch("/api/messages", {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+        const data = await response.json();
+        setMessages(data);
+      };
+
+      fetchMessages();
+    }
+  }, [authToken]);
 
   const handleSend = async () => {
-    if (inputValue.trim() === "") return;
+    if (input.trim()) {
+      const newMessage = { text: input, sender: "user" };
+      setMessages([...messages, newMessage]);
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { type: "sent", content: inputValue },
-    ]);
-
-    const query = inputValue;
-    setInputValue("");
-
-    try {
-      const response = await fetch("http://localhost:5000/api/something", {
+      const response = await fetch("/api/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify(newMessage),
       });
 
       const data = await response.json();
-
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: "received", content: data.answer },
-      ]);
-    } catch (error) {
-      console.error("Error fetching RAG response:", error);
+      setMessages([...messages, newMessage, data]);
+      setInput("");
     }
   };
 
-  return (
-    <div className="app">
-      {isAuthenticated ? (
-        <>
-          <aside className="sidebar">
-            <button className="new-chat">+ New chat</button>
-            <div className="chat-list">
-              <div className="chat-item">Creating HTML Links</div>
-              <div className="chat-item">New chat</div>
-              <div className="chat-item">New chat</div>
-              <div className="chat-item">New chat</div>
-              <div className="chat-item">New chat</div>
-              <div className="chat-item">New chat</div>
-              <div className="chat-item">New chat</div>
-            </div>
-            <div className="sidebar-footer">
-              <button>Clear conversations</button>
-              <button>Light mode</button>
-              <button>OpenAI Discord</button>
-              <button>Updates & FAQ</button>
-              <button>Log out</button>
-            </div>
-          </aside>
-          <main className="chat-area">
-            <div className="chat-container">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`message ${
-                    message.type === "sent" ? "sent" : "received"
-                  }`}
-                >
-                  {message.type === "received" && (
-                    <div className="avatar">
-                      <img src="profile-placeholder.png" alt="User" />
-                    </div>
-                  )}
-                  <div className="text">{message.content}</div>
-                </div>
-              ))}
-              <footer className="chat-footer">
-                <input
-                  type="text"
-                  placeholder="Type a message..."
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                />
-                <button className="send-button" onClick={handleSend}>
-                  Send
-                </button>
-              </footer>
-            </div>
-          </main>
-        </>
-      ) : (
-        <div className="chat">
-          <div className="chat-container">
-            <div className="chat-page">
-              <header className="chat-header">
-                <div className="header-left">
-                  <div className="dropdown">
-                    <select>
-                      <option value="2024">2024</option>
-                      <option value="2023">2023</option>
-                      {/* Add more options as needed */}
-                    </select>
-                  </div>
-                </div>
-                <div className="header-right">
-                  <Link to="/login" className="login-button">
-                    Login
-                  </Link>
-                  <Link to="/signup" className="signup-button">
-                    Signup
-                  </Link>
-                </div>
-              </header>
-              <div className="chat-area">
-                <div className="message received">
-                  <div className="avatar">
-                    <img src="profile-placeholder.png" alt="User" />
-                  </div>
-                  <div className="text">Hello! How can I help you today?</div>
-                </div>
-              </div>
-              <footer className="chat-footer">
-                <input type="text" placeholder="Type a message..." />
-                <button className="send-button">Send</button>
-              </footer>
+  if (!authToken) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <LandingNavbar />
+        <div className="flex-1 flex flex-col items-center justify-center bg-neutral-light p-4">
+          <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-4 text-center">
+            <h2 className="text-3xl font-bold text-primary mb-4">
+              Welcome to AgriLLM
+            </h2>
+            <p className="text-xl text-neutral mb-8">
+              Please log in or sign up to access the chat.
+            </p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark transition duration-300"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/signup")}
+                className="bg-secondary text-white py-2 px-4 rounded hover:bg-secondary-dark transition duration-300"
+              >
+                Sign Up
+              </button>
             </div>
           </div>
         </div>
-      )}
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <LandingNavbar />
+      <div className="flex-1 flex flex-col items-center justify-center bg-neutral-light p-4">
+        <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-4 flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2 overflow-auto">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`${
+                  message.sender === "user"
+                    ? "text-right text-primary"
+                    : "text-left text-secondary"
+                }`}
+              >
+                <span
+                  className={`inline-block px-4 py-2 rounded-lg ${
+                    message.sender === "user"
+                      ? "bg-primary text-white"
+                      : "bg-secondary text-white"
+                  }`}
+                >
+                  {message.text}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="flex space-x-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="flex-1 p-2 border border-neutral rounded focus:ring-2 focus:ring-primary"
+            />
+            <button
+              onClick={handleSend}
+              className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark transition duration-300"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 }
