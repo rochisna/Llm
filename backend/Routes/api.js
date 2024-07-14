@@ -34,6 +34,6 @@ router.post(
 
 
 // query route
-router.post("/something", queryingFromRag);
+router.post("/messages", queryingFromRag);
 
 module.exports = router;

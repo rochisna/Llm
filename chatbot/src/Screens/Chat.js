@@ -6,118 +6,141 @@ import Footer from "../components/Footer";
 function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     if (authToken) {
-      const fetchMessages = async () => {
-        const response = await fetch("/api/messages", {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-        const data = await response.json();
-        setMessages(data);
-      };
-
+      setIsLoggedIn(true);
       fetchMessages();
+    } else {
+      setIsLoggedIn(false);
     }
   }, [authToken]);
+
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch("/api/messages", {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch messages");
+      }
+      const data = await response.json();
+      setMessages(data);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
 
   const handleSend = async () => {
     if (input.trim()) {
       const newMessage = { text: input, sender: "user" };
       setMessages([...messages, newMessage]);
 
-      const response = await fetch("/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(newMessage),
-      });
+      try {
+        const response = await fetch("/api/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(newMessage),
+        });
 
-      const data = await response.json();
-      setMessages([...messages, newMessage, data]);
-      setInput("");
+        if (!response.ok) {
+          throw new Error("Failed to send message");
+        }
+
+        const data = await response.json();
+        setMessages([...messages, data]);
+        setInput("");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
-  if (!authToken) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <LandingNavbar />
-        <div className="flex-1 flex flex-col items-center justify-center bg-neutral-light p-4">
-          <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-4 text-center">
-            <h2 className="text-3xl font-bold text-primary mb-4">
-              Welcome to AgriLLM
-            </h2>
-            <p className="text-xl text-neutral mb-8">
-              Please log in or sign up to access the chat.
-            </p>
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={() => navigate("/login")}
-                className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark transition duration-300"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => navigate("/signup")}
-                className="bg-secondary text-white py-2 px-4 rounded hover:bg-secondary-dark transition duration-300"
-              >
-                Sign Up
-              </button>
-            </div>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
+  const handleLoginRedirect = () => {
+    navigate("/login");
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <LandingNavbar />
-      <div className="flex-1 flex flex-col items-center justify-center bg-neutral-light p-4">
-        <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-4 flex flex-col space-y-4">
-          <div className="flex flex-col space-y-2 overflow-auto">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`${
-                  message.sender === "user"
-                    ? "text-right text-primary"
-                    : "text-left text-secondary"
-                }`}
-              >
-                <span
-                  className={`inline-block px-4 py-2 rounded-lg ${
+      <div className="flex flex-1">
+        {isLoggedIn ? (
+          <div className="w-1/4 bg-gray-100 p-4">
+            <h2 className="text-lg font-semibold mb-4">Chat History</h2>
+            <div className="overflow-y-auto h-full">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`${
                     message.sender === "user"
-                      ? "bg-primary text-white"
-                      : "bg-secondary text-white"
-                  }`}
+                      ? "text-right text-blue-500"
+                      : "text-left text-green-500"
+                  } mb-2`}
                 >
-                  {message.text}
-                </span>
-              </div>
-            ))}
+                  <span className="inline-block p-2 bg-white rounded-lg shadow-sm">
+                    {message.text}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="flex-1 p-2 border border-neutral rounded focus:ring-2 focus:ring-primary"
-            />
-            <button
-              onClick={handleSend}
-              className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark transition duration-300"
-            >
-              Send
-            </button>
+        ) : (
+          <div className="w-1/4 bg-gray-100 p-4 flex items-center justify-center">
+            <div className="text-center">
+              <p className="mb-4">
+                Please{" "}
+                <button
+                  onClick={handleLoginRedirect}
+                  className="text-blue-500 underline focus:outline-none hover:text-blue-600"
+                >
+                  login
+                </button>{" "}
+                to save your conversation history.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex-1 bg-white p-4">
+          <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`${
+                    message.sender === "user"
+                      ? "self-end text-right text-blue-500"
+                      : "self-start text-left text-green-500"
+                  } mb-2`}
+                >
+                  <span className="inline-block p-2 bg-gray-200 rounded-lg shadow-sm">
+                    {message.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="flex mt-4">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleSend}
+                className="bg-blue-500 text-white py-2 px-4 ml-2 rounded hover:bg-blue-600 transition duration-300 focus:outline-none"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -6,6 +6,10 @@ import Footer from "../components/Footer";
 function LandingPage() {
   const navigate = useNavigate();
 
+  const handleGetStarted = () => {
+    navigate("/chat"); // Directs user to chat page on Get Started click
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <LandingNavbar />
@@ -17,7 +21,7 @@ function LandingPage() {
           Your AI-powered chatbot solution.
         </p>
         <button
-          onClick={() => navigate("/chat")}
+          onClick={handleGetStarted}
           className="bg-white text-primary py-3 px-6 rounded-full shadow-lg hover:bg-neutral-light transition duration-300"
         >
           Get Started
