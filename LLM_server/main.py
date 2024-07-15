@@ -15,10 +15,16 @@ app = FastAPI()
 
 # Load your model and tokenizer
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = SentenceTransformer('paraphrase-MiniLM-L6-v2').to(device)
-bart_model = BartForConditionalGeneration.from_pretrained('facebook/bart-large-cnn').to(device)
-tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
 
+model_load_path = 'models/sentence_transformer'
+bart_model_load_path = 'models/bart_model'
+tokenizer_load_path = 'models/tokenizer'
+
+
+# Load models
+model = SentenceTransformer(model_load_path).to(device)
+bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
+tokenizer = BartTokenizer.from_pretrained(tokenizer_load_path)
 # CORS settings
 origins = [
     "http://localhost:3000",
