@@ -5,3 +5,4 @@ transformers
 torch 
 tf-keras 
 tensorflow
+fastapi-cors
