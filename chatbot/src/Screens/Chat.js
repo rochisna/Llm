@@ -1,157 +1,115 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import LandingNavbar from "../components/LandingNavbar";
-import Footer from "../components/Footer";
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from sentence_transformers import SentenceTransformer, util
+import numpy as np
+import sqlite3
+from transformers import BertTokenizer, BertForMaskedLM, pipeline
+import base64
+from transformers import BartForConditionalGeneration, BartTokenizer
+import os
+import torch
+from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime 
 
-function Chat() {
-  const [messages, setMessages] = useState([
-    { sender: "user", text: "who are you" },
-    { sender: "sys", text: "I am AI" }
-  ]);
-  const [input, setInput] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
-  const authToken = localStorage.getItem("authToken");
+app = FastAPI()
 
-  useEffect(() => {
-    if (authToken) {
-      setIsLoggedIn(true);
-      fetchMessages();
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, [authToken]);
+origins = [
+    "http://localhost:3000",
+    # Add other origins if needed
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-  const fetchMessages = async () => {
-    try {
-      const response = await fetch("/api/messages", {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch messages");
-      }
-      const data = await response.json();
-      setMessages(data);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    }
-  };
+# Load your model and tokenizer
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-  const handleSend = async () => {
-    if (input.trim()) {
-      const newMessage = { text: input, sender: "user" };
-      setMessages([...messages, newMessage]);
-      setInput("");
+model_load_path = 'models/sentence_transformer'
+bart_model_load_path = 'models/bart_model'
+tokenizer_load_path = 'models/tokenizer'
 
-      try {
-        // Send the user message to your backend or directly to the LLM server
-        const response = await fetch("http://localhost:5000/query", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({ query: input }),
-        });
 
-        if (!response.ok) {
-          throw new Error("Failed to send message");
-        }
+# Load models
+model = SentenceTransformer(model_load_path).to(device)
+bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
+tokenizer = BartTokenizer.from_pretrained(tokenizer_load_path)
+# CORS settings
+origins = [
+    "http://localhost:3000",
+    # Add other origins if needed
+]
 
-        const data = await response.json();
-        const botMessage = { text: data.response, sender: "sys" };
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
-    }
-  };
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-  const handleLoginRedirect = () => {
-    navigate("/login");
-  };
+class Query(BaseModel):
+    query: str
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <LandingNavbar />
-      <div className="flex flex-1">
-        {isLoggedIn ? (
-          <div className="w-1/4 bg-gray-100 p-4">
-            <h2 className="text-lg font-semibold mb-4">Chat History</h2>
-            <div className="overflow-y-auto h-full">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`${
-                    message.sender === "user"
-                      ? "text-right text-blue-500"
-                      : "text-left text-green-500"
-                  } mb-2`}
-                >
-                  <span className="inline-block p-2 bg-white rounded-lg shadow-sm">
-                    {message.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="w-1/4 bg-gray-100 p-4 flex items-center justify-center">
-            <div className="text-center">
-              <p className="mb-4">
-                Please{" "}
-                <button
-                  onClick={handleLoginRedirect}
-                  className="text-blue-500 underline focus:outline-none hover:text-blue-600"
-                >
-                  login
-                </button>{" "}
-                to save your conversation history.
-              </p>
-            </div>
-          </div>
-        )}
+def retrieve_embeddings_from_db(conn, target_collection_name):
+    """Retrieves embeddings and their corresponding chunks for a specific collection name from the SQLite database."""
+    c = conn.cursor()
+    # c.execute('''
+    #     SELECT embeddings.chunk_text, embeddings.embedding
+    #     FROM embeddings
+    #     INNER JOIN collections
+    #     ON embeddings.collection_id = collections.id
+    #     WHERE collections.collection_name = ?
+    # ''', (target_collection_name,))
 
-        <div className="flex-1 bg-white p-4">
-          <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`${
-                    message.sender === "user"
-                      ? "self-end text-right text-blue-500"
-                      : "self-start text-left text-green-500"
-                  } mb-2`}
-                >
-                  <span className="inline-block p-2 bg-gray-200 rounded-lg shadow-sm">
-                    {message.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <div className="flex mt-4">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className="flex-1 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={handleSend}
-                className="bg-blue-500 text-white py-2 px-4 ml-2 rounded hover:bg-blue-600 transition duration-300 focus:outline-none"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Footer />
-    </div>
-  );
-}
+    c.execute('''
+        SELECT chunk_text,embedding FROM embeddings''', (target_collection_name,))
+    rows = c.fetchall()
 
-export default Chat;
+    chunks = []
+    embeddings = []
+
+    for row in rows:
+        chunk_text, emb_str = row
+        emb = np.frombuffer(base64.b64decode(emb_str), dtype=np.float32)
+        chunks.append(chunk_text)
+        embeddings.append(emb)
+
+    return chunks, embeddings
+
+def query_with_bart_model(chunks, embeddings, query):
+    """Generates a query result using the BART model based on the closest chunk embeddings."""
+    query_embedding = model.encode(query, convert_to_tensor=True, device=device).cpu().numpy()
+    similarities = np.dot(embeddings, query_embedding)
+
+    most_similar_idx = np.argmax(similarities)
+    most_similar_chunk = chunks[most_similar_idx]
+
+    inputs = tokenizer([most_similar_chunk], max_length=1024, return_tensors='pt').to(device)
+    summary_ids = bart_model.generate(inputs['input_ids'], num_beams=4, max_length=5, early_stopping=True)
+    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+
+    return summary
+
+def connect_to_database(db_file):
+    """Connects to the SQLite database."""
+    conn = sqlite3.connect(db_file)
+    return conn
+
+@app.post("/query")
+async def get_response(query: Query):
+    try:
+        conn = connect_to_database('final.db')
+        chunks, embeddings = retrieve_embeddings_from_db(conn, "AR22")
+        result = query_with_bart_model(chunks, embeddings, query.query)
+        return {"response": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
