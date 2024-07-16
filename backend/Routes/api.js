@@ -1,13 +1,15 @@
 const express = require("express");
 const { body } = require("express-validator");
+
 const router = express.Router();
 
+const authenticateToken = require('../middleware/authenticateToken');
 const {
   createUser,
   loginUser,
 } = require("../controllers/LoginSignupController");
-const {AllConversations, NewConversation} = require("../controllers/Conversation");
-const { queryingFromRag } = require("../controllers/connectRag");
+const {saveConversation, getConversations,getConversationById} = require("../controllers/ConversationController");
+const {saveMessage, getMessages} = require("../controllers/MessageController")
 
 // signup route
 router.post(
@@ -35,6 +37,14 @@ router.post(
 
 
 // query route
-router.post("/messages", queryingFromRag);
+// router.post("/messages", queryingFromRag);
+
+router.post('/create-history', authenticateToken, saveConversation);
+router.get("/history",authenticateToken,getConversations)
+router.get('/history/:id', authenticateToken, getConversationById);
+
+router.post("/add-message",authenticateToken,saveMessage)
+router.get("/get-message",authenticateToken,getMessages)
+
 
 module.exports = router;
