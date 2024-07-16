@@ -30,7 +30,7 @@ router.post(
     body("email").isEmail().withMessage("Enter a valid email address"),
     body("password", "Password must be at least 5 characters long").isLength({
       min: 5,
-    }),
+    }), 
   ],
   loginUser
 );

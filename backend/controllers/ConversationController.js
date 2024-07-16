@@ -43,7 +43,7 @@ const getConversationById = async (req, res) => {
     }
     if (user.id !== conversation.userId.toString()) {
       return res.status(403).json({ error: 'Access denied' });
-    }
+    } 
     res.json(conversation);
   } catch (err) {
     res.status(500).json({ error: err.message });

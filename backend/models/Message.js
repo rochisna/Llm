@@ -10,7 +10,7 @@ const MessageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  conversationId: {
+  conversationId: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: "Conversation",
     required: true,

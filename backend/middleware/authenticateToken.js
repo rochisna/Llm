@@ -11,7 +11,7 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ message: 'No token, authorization denied' });
   }
 
-  try {
+  try { 
     const decoded = jwt.verify(token, '7FgR$#0D9n!23vTq');
     req.user = decoded;
     next();
