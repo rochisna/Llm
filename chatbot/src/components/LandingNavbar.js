@@ -1,26 +1,59 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../cssStyles/Button.css";
+
+const Button = () => {
+  const navigate = useNavigate();
+  const [hovered, setHovered] = useState(false);
+  const handleSignUp = () => {
+    navigate("/SignUp"); // Directs user to chat page on Get Started click
+  };
+
+  const handleHover = () => {
+    setHovered(!hovered);
+  };
+
+  useEffect(() => {
+    // Add transition effects here if needed
+  }, [hovered]);
+
+  return (
+    <button
+      className="custom-button"
+      style={{
+        "--primary-color": "#ffffff",
+        "--secondary-color": "#141F0E",
+        "--hover-color": "#ffffff",
+        "--arrow-width": "10px",
+        "--arrow-stroke": "2px",
+      }}
+      onMouseEnter={handleHover}
+      onMouseLeave={handleHover}
+      onClick={handleSignUp}
+    >
+      <span>Sign Up</span>
+      <span className="arrow-wrapper">
+        <span className="arrow"></span>
+      </span>
+    </button>
+  );
+};
 
 function LandingNavbar() {
   return (
     <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-primary">
+      <div className="px-6 lg:px-12 py-4 flex flex-row justify-between items-center">
+        <div className="text-xl md:text-2xl font-bold text-primary text-[#141F0E]">
           <Link to="/">AgriLLM</Link>
         </div>
-        <div className="space-x-4">
+        <div className="flex flex-row justify-between items-center space-x-4 md:space-x-8">
           <Link
             to="/login"
-            className="text-primary hover:text-primary-dark transition duration-300"
+            className="text-sm md:text-base hover:text-[#141F0E] transition duration-300 text-[#0f4430]"
           >
             Login
           </Link>
-          <Link
-            to="/signup"
-            className="bg-primary text-white py-2 px-4 rounded-full hover:bg-primary-dark transition duration-300"
-          >
-            Sign Up
-          </Link>
+          <Button />
         </div>
       </div>
     </nav>

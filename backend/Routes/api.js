@@ -6,8 +6,6 @@ const {
   createUser,
   loginUser,
 } = require("../controllers/LoginSignupController");
-const {AllConversations, NewConversation} = require("../controllers/Conversation");
-const { queryingFromRag } = require("../controllers/connectRag");
 
 // signup route
 router.post(
@@ -32,9 +30,5 @@ router.post(
   ],
   loginUser
 );
-
-
-// query route
-router.post("/messages", queryingFromRag);
 
 module.exports = router;
