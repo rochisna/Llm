@@ -65,13 +65,12 @@ function Chat() {
       console.error("Error fetching messages:", error);
     }
   };
-
   const handleSend = async () => {
     if (input.trim()) {
       const newMessage = { text: input, sender: "user", conversationId: id };
       setMessages([...messages, newMessage]);
-      setInput("");
-
+      
+  
       try {
         const response = await fetch("http://localhost:5000/api/add-message", {
           method: "POST",
@@ -81,16 +80,16 @@ function Chat() {
           },
           body: JSON.stringify(newMessage),
         });
-
+  
         if (!response.ok) {
           throw new Error("Failed to send message");
         }
       } catch (error) {
         console.error("Error sending message:", error);
       }
-
+  
       setTyping(true);
-
+  
       try {
         const response = await fetch(`http://localhost:8000/${selectedModel}`, {
           method: "POST",
@@ -100,17 +99,20 @@ function Chat() {
           },
           body: JSON.stringify({ query: input }),
         });
-
+  
         if (!response.ok) {
           throw new Error("Failed to fetch response from model");
         }
-
+  
         const data = await response.json();
         const botMessage = { text: "", sender: "sys", conversationId: id };
-
+  
+        // Typing effect simulation
         let index = 0;
+        setMessages((prevMessages)=>[...prevMessages,botMessage])
         const typingEffect = setInterval(() => {
           botMessage.text += data.response[index];
+          
           setMessages((prevMessages) => [
             ...prevMessages.slice(0, -1),
             { ...botMessage },
@@ -119,9 +121,9 @@ function Chat() {
           if (index === data.response.length) {
             clearInterval(typingEffect);
             setTyping(false);
-
+  
             // Save the complete bot message
-            saveBotMessage({ ...botMessage, text: data.response });
+            saveBotMessage({ ...botMessage, text: data.response, conversationId: id });
           }
         }, 50); // Adjust typing speed here
       } catch (error) {
@@ -130,7 +132,7 @@ function Chat() {
       }
     }
   };
-
+  
   const saveBotMessage = async (botMessage) => {
     try {
       const response = await fetch("http://localhost:5000/api/add-message", {
@@ -141,7 +143,7 @@ function Chat() {
         },
         body: JSON.stringify(botMessage),
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to save bot message");
       }
@@ -149,7 +151,7 @@ function Chat() {
       console.error("Error saving bot message:", error);
     }
   };
-
+  
   const handleLoginRedirect = () => {
     navigate("/login");
   };
