@@ -7,7 +7,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("bert");
+  const [selectedModel, setSelectedModel] = useState("bart");
   const [typing, setTyping] = useState(false);
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
@@ -166,11 +166,13 @@ function Chat() {
           },
           body: JSON.stringify({ name: title, messages: [] }),
         });
-
+        console.log(response)
         if (!response.ok) {
           throw new Error(`Failed to create new chat: ${response.statusText}`);
         }
-
+        const data = await response.json()
+        console.log(data)
+        navigate(`/chat/${data._id}`)
         fetchHistory(); // Refresh chat history
       } catch (error) {
         console.error("Error creating new chat:", error);
@@ -219,14 +221,14 @@ function Chat() {
               onChange={(e) => setSelectedModel(e.target.value)}
               className="p-2 border border-gray-300 rounded focus:outline-none bg-blue-100 text-blue-800"
             >
-              <option value="bert">Bert</option>
+              <option value="bart">Bart</option>
               <option value="gpt2">GPT-2</option>
               <option value="gemini">Gemini</option>
               <option value="llama3">Llama 3</option>
             </select>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-6 bg-white">
+        <div className="flex-1 overflow-y-auto p-6 bg-white ">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -235,7 +237,7 @@ function Chat() {
               }`}
             >
               <span
-                className={`inline-block p-4 rounded-lg shadow-sm ${
+                className={`inline-block p-4 rounded-lg shadow-sm max-w-[90%] ${
                   message.sender === "user" ? "bg-blue-100" : "bg-green-100"
                 }`}
               >
