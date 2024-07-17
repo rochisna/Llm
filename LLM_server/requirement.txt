@@ -7,3 +7,5 @@ tf-keras
 tensorflow
 fastapi-cors
 groq
+nltk
+google-generativeai
