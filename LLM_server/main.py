@@ -25,8 +25,8 @@ tokenizer_load_path = 'models/tokenizer'
 # Load models
 model = SentenceTransformer(model_load_path).to(device)
 
-# bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
-# tokenizer = BartTokenizer.from_pretrained(tokenizer_load_path)
+bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
+tokenizer = BartTokenizer.from_pretrained(tokenizer_load_path)
 client = Groq(api_key="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")
 
 # CORS settings
