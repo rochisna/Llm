@@ -65,33 +65,30 @@ function Chat() {
       console.error("Error fetching messages:", error);
     }
   };
-
+  var botMessage;
   const handleSend = async () => {
     if (input.trim()) {
       const newMessage = { text: input, sender: "user", conversationId: id };
       setMessages([...messages, newMessage]);
       setInput("");
-
-      try {
-        const response = await fetch("http://localhost:5000/api/add-message", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(newMessage),
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to send message");
-        }
+        try {
+          const response = await fetch("http://localhost:5000/api/add-message", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify( newMessage),
+          });
+  
+          if (!response.ok) {
+            throw new Error("Failed to send message");
+          }
       } catch (error) {
         console.error("Error sending message:", error);
       }
 
-      setTyping(true);
-
-      try {
+      try{
         const response = await fetch(`http://localhost:8000/${selectedModel}`, {
           method: "POST",
           headers: {
@@ -100,53 +97,51 @@ function Chat() {
           },
           body: JSON.stringify({ query: input }),
         });
+        if (!response.ok) {
+          throw new Error("Failed to send message");
+        }
+        const data = await response.json();
+        botMessage = { text: data.response, sender: "sys" };
+        setMessages((prevMessages) => [...prevMessages, botMessage]);
+      }catch(error){
+        console.error("Error sending message:", error);
+
+      }
+      try {
+
+        botMessage["conversationId"]=id
+        const response = await fetch("http://localhost:5000/api/add-message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(botMessage),
+        });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch response from model");
+          throw new Error("Failed to send message");
         }
 
         const data = await response.json();
-        const botMessage = { text: "", sender: "sys", conversationId: id };
 
-        let index = 0;
-        const typingEffect = setInterval(() => {
-          botMessage.text += data.response[index];
-          setMessages((prevMessages) => [
-            ...prevMessages.slice(0, -1),
-            { ...botMessage },
-          ]);
-          index++;
-          if (index === data.response.length) {
-            clearInterval(typingEffect);
-            setTyping(false);
 
-            // Save the complete bot message
-            saveBotMessage({ ...botMessage, text: data.response });
-          }
-        }, 50); // Adjust typing speed here
+        // setTyping(true);
+        // let index = 0;
+        // const typingEffect = setInterval(() => {
+        //   setMessages((prevMessages) => [
+        //     ...prevMessages.slice(0, -1),
+        //     { text: data.response.slice(0, index + 1), sender: "sys" },
+        //   ]);
+        //   index++;
+        //   if (index === data.response.length) {
+        //     clearInterval(typingEffect);
+        //     setTyping(false);
+        //   }
+        // }, 50);
       } catch (error) {
-        console.error("Error fetching response from model:", error);
-        setTyping(false);
+        console.error("Error sending message:", error);
       }
-    }
-  };
-
-  const saveBotMessage = async (botMessage) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/add-message", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(botMessage),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save bot message");
-      }
-    } catch (error) {
-      console.error("Error saving bot message:", error);
     }
   };
 
@@ -171,6 +166,7 @@ function Chat() {
           throw new Error(`Failed to create new chat: ${response.statusText}`);
         }
 
+        const data = await response.json();
         fetchHistory(); // Refresh chat history
       } catch (error) {
         console.error("Error creating new chat:", error);
@@ -207,25 +203,27 @@ function Chat() {
         </div>
       </div>
       <div className="flex-1 flex flex-col">
-        <div className="flex justify-between items-center p-4 bg-white border-b border-gray-300 w-full">
-          <h1 className="text-2xl font-bold">Chat</h1>
-          <div className="flex items-center">
-            <label className="mr-4 text-lg font-semibold text-gray-700">
-              Current Model:
-              <span className="ml-2 text-xl text-blue-800">{selectedModel}</span>
-            </label>
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="p-2 border border-gray-300 rounded focus:outline-none bg-blue-100 text-blue-800"
-            >
-              <option value="bert">Bert</option>
-              <option value="gpt2">GPT-2</option>
-              <option value="gemini">Gemini</option>
-              <option value="llama3">Llama 3</option>
-            </select>
-          </div>
-        </div>
+  <div className="flex justify-between items-center p-4 bg-white border-b border-gray-300 w-full">
+    <h1 className="text-2xl font-bold">Chat</h1>
+    <div className="flex items-center">
+      <label className="mr-4 text-lg font-semibold text-gray-700">
+        Current Model:
+        <span className="ml-2 text-xl text-blue-800">{selectedModel}</span>
+      </label>
+      <select
+        value={selectedModel}
+        onChange={(e) => setSelectedModel(e.target.value)}
+        className="p-2 border border-gray-300 rounded focus:outline-none bg-blue-100 text-blue-800"
+      >
+        <option value="bert">Bert</option>
+        <option value="gpt2">GPT-2</option>
+        <option value="gemini">Gemini</option>
+        <option value="llama3">Llama 3</option>
+      </select>
+    </div>
+  </div>
+  
+
         <div className="flex-1 overflow-y-auto p-6 bg-white">
           {messages.map((message, index) => (
             <div

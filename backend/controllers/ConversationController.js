@@ -38,13 +38,14 @@ const getConversationById = async (req, res) => {
   try {
     const {user} = req.user
     const conversation = await Conversation.findById(req.params.id);
+    console.log(conversation)
     if (!conversation) {
       return res.status(404).json({ error: 'Conversation not found' });
     }
     if (user.id !== conversation.userId.toString()) {
       return res.status(403).json({ error: 'Access denied' });
     } 
-    res.json(conversation);
+    res.send(conversation);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -22,7 +22,7 @@ function Login() {
     if (!json.success) {
       alert("Invalid credentials");
     } else {
-      localStorage.setItem("authToken", json.token);
+      localStorage.setItem("authToken", json.authToken);
       navigate("/chat");
     }
   };

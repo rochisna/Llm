@@ -6,3 +6,4 @@ torch
 tf-keras 
 tensorflow
 fastapi-cors
+groq

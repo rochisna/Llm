@@ -6,11 +6,31 @@ import image from "../images/10.jpg";
 
 function LandingPage() {
   const navigate = useNavigate();
-
+  const authToken = localStorage.getItem("authToken")
   const handleGetStarted = () => {
+    createChat()
     navigate("/chat"); // Directs user to chat page on Get Started click
   };
+  const createChat = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/create-history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body:JSON.stringify({"name":"New Chat ","message":[]})
+      });
 
+      if (!response.ok) {
+        throw new Error(`Failed to fetch messages: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
   return (
     <div className="min-h-screen min-w-screen">
       <div className ="flex flex-col min-h-screen">
