@@ -10,6 +10,7 @@ from transformers import BartForConditionalGeneration, BartTokenizer
 import os
 import torch
 from datetime import datetime
+from groq import Groq
 
 app = FastAPI()
 
@@ -23,8 +24,11 @@ tokenizer_load_path = 'models/tokenizer'
 
 # Load models
 model = SentenceTransformer(model_load_path).to(device)
+
 bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
 tokenizer = BartTokenizer.from_pretrained(tokenizer_load_path)
+client = Groq(api_key="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")
+
 # CORS settings
 origins = [
     "http://localhost:3000",
@@ -41,7 +45,7 @@ app.add_middleware(
 class Query(BaseModel):
     query: str
 
-def retrieve_embeddings_from_db(conn):
+def retrieve_embeddings_from_db(conn,query):
     """Retrieves embeddings and their corresponding chunks for a specific collection name from the SQLite database."""
     c = conn.cursor()
     # c.execute('''
@@ -64,10 +68,6 @@ def retrieve_embeddings_from_db(conn):
         chunks.append(chunk_text)
         embeddings.append(emb)
 
-    return chunks, embeddings
-
-
-def query_with_bart_model_with_three_chucks(chunks, embeddings, query):
     query_embedding = model.encode(query)
     similarities = util.pytorch_cos_sim(query_embedding, embeddings)[0]
     
@@ -81,9 +81,15 @@ def query_with_bart_model_with_three_chucks(chunks, embeddings, query):
     # Get the top 3 closest chunks
     closest_chunks = [chunks[idx] for idx in top_k_indices]
 
+
+    return f"Question: {query} Context: {closest_chunks[0]} {closest_chunks[1]} {closest_chunks[2]}"
+
+
+def bart(query):
+    
     # Construct the input text using the top 3 closest chunks
-    input_text = f"Question: {query} Context: {closest_chunks[0]} {closest_chunks[1]} {closest_chunks[2]}"
-    inputs = tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
+    
+    inputs = tokenizer(query, return_tensors="pt", max_length=512, truncation=True)
 
     # Generate the summary
     summary_ids = bart_model.generate(
@@ -120,15 +126,39 @@ def connect_to_database(db_file):
     conn = sqlite3.connect(db_file)
     return conn
 
-@app.post("/query")
+@app.post("/bart")
 async def get_response(query: Query):
     try:
         conn = connect_to_database('final.db')
-        chunks, embeddings = retrieve_embeddings_from_db(conn)
-        result = query_with_bart_model_with_three_chucks(chunks, embeddings, query.query)
+        queryFinal = retrieve_embeddings_from_db(conn,query.query)
+        result = bart(queryFinal)
         return {"response": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/llama3")
+async def get_response(query: Query):
+    try:
+        messages= []
+        conn = connect_to_database('final.db')
+        queryFinal = retrieve_embeddings_from_db(conn,query.query)
+
+
+        messages.append({"role":"user","content":"remember u are an llm which is used for icar-crida work so please dont mention abt context just give a simple answer .this are"+queryFinal+"based on the context give me the answer "})
+        
+        chat_completion = client.chat.completions.create(
+                
+        messages=messages,
+        model="llama3-8b-8192",
+        )
+        # messages.append({"role":"system","content":chat_completion.choices[0].message.content})
+        result = chat_completion.choices[0].message.content
+        return {"response": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 if __name__ == "__main__":
     import uvicorn
