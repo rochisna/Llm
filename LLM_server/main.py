@@ -6,12 +6,11 @@ import numpy as np
 import sqlite3
 from transformers import BertTokenizer, BertForMaskedLM, pipeline
 import base64
-from transformers import BartForConditionalGeneration, BartTokenizer
+from transformers import BartForConditionalGeneration, BartTokenizer, GPT2Tokenizer, GPT2LMHeadModel
 import os
 import torch
 from datetime import datetime
 from groq import Groq
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from nltk.tokenize import sent_tokenize
 import google.generativeai as genai
 import nltk
@@ -21,28 +20,46 @@ import io
 nltk.download('punkt')
 app = FastAPI()
 
-# Load your model and tokenizer
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+# Define paths
 model_load_path = 'models/sentence_transformer'
 bart_model_load_path = 'models/bart_model'
 bart_tokenizer_load_path = 'models/tokenizer'
-
 gpt2_model_load_path = 'models/gpt2_model'
 gpt2_tokenizer_load_path = 'models/gpt2_tokenizer'
 
+# Ensure models are loaded or downloaded
+def ensure_model_exists(model_path, model_name, tokenizer_name=None):
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
+        # Download the model
+        if tokenizer_name:
+            model = BertForMaskedLM.from_pretrained(model_name)
+            tokenizer = BertTokenizer.from_pretrained(tokenizer_name)
+        else:
+            model = SentenceTransformer(model_name)
+        model.save_pretrained(model_path)
+        if tokenizer_name:
+            tokenizer.save_pretrained(model_path)
+
+# Ensure SentenceTransformer model exists
+ensure_model_exists(model_load_path, 'sentence-transformers/all-MiniLM-L6-v2')
+
+# Ensure BART model exists
+ensure_model_exists(bart_model_load_path, 'facebook/bart-large-cnn')
+bart_tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
+
+# Ensure GPT-2 model exists
+ensure_model_exists(gpt2_model_load_path, 'gpt2')
+gpt2_tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2')
 
 # Load models
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = SentenceTransformer(model_load_path).to(device)
-
 bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
-bart_tokenizer = BartTokenizer.from_pretrained(bart_tokenizer_load_path)
+gpt2_model = GPT2LMHeadModel.from_pretrained(gpt2_model_load_path).to(device)
 
-# gpt2_tokenizer = GPT2Tokenizer.from_pretrained(gpt2_tokenizer_load_path)
-# gpt2_model = GPT2LMHeadModel.from_pretrained(gpt2_model_load_path)
-
-
-client = Groq(api_key="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")
+client = Groq(api_key="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")
 
 # CORS settings
 origins = [
@@ -118,20 +135,6 @@ def gpt2(query):
     complete_answer = ' '.join(sentences[:-1]) if not answer.endswith('.') else answer
     return complete_answer
 
-def query_with_bart_model_with_one_chunk(chunks, embeddings, query):
-    query_embedding = model.encode(query)
-    similarities = util.pytorch_cos_sim(query_embedding, embeddings)[0]
-    most_similar_idx = np.argmax(similarities)
-    most_similar_chunk = chunks[most_similar_idx]
-    input_text = f"Question: {query} Context: {most_similar_chunk}"
-    inputs = tokenizer(input_text, return_tensors="pt", max_length=512, truncation=True)
-    summary_ids = bart_model.generate(
-        inputs['input_ids'].to('cuda') if torch.cuda.is_available() else inputs['input_ids'],
-        max_length=150, num_beams=4, length_penalty=2.0, early_stopping=True
-    )
-    response = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-    return response
-
 def connect_to_database(db_file):
     conn = sqlite3.connect(db_file)
     return conn
@@ -164,7 +167,7 @@ async def get_response(query: Query):
         queryFinal = retrieve_embeddings_from_db(conn, query.query)
         messages.append({
             "role": "user", 
-            "content": "remember u are an llm which is used for icar-crida work so please dont mention abt context just give a simple answer .this are" + queryFinal + "based on the context give me the answer "
+            "content": "remember u are an llm which is used for icar-crida work so please dont mention abt context just give a simple answer .this are" + queryFinal + "based on the context give me the answer and just give answer dont mention abt the data given to you                                               " 
         })
         chat_completion = client.chat.completions.create(
             messages=messages,
