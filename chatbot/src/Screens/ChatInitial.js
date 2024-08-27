@@ -7,7 +7,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("bert");
+  const [selectedModel, setSelectedModel] = useState("bart");
   const [typing, setTyping] = useState(false);
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
@@ -215,7 +215,7 @@ function Chat() {
         onChange={(e) => setSelectedModel(e.target.value)}
         className="p-2 border border-gray-300 rounded focus:outline-none bg-blue-100 text-blue-800"
       >
-        <option value="bert">Bert</option>
+        <option value="bart">bart</option>
         <option value="gpt2">GPT-2</option>
         <option value="gemini">Gemini</option>
         <option value="llama3">Llama 3</option>

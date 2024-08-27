@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import image from "../images/10.jpg";
+import LandingNavbar from "../components/LandingNavbar";
+import Footer from "../components/Footer";
 
 function Login() {
   let navigate = useNavigate();
@@ -22,7 +24,7 @@ function Login() {
     if (!json.success) {
       alert("Invalid credentials");
     } else {
-      localStorage.setItem("authToken", json.authToken);
+      localStorage.setItem("authToken", json.token);
       navigate("/chat");
     }
   };
@@ -31,68 +33,51 @@ function Login() {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleSignUpClick = () => {
-    navigate("/signup"); // Navigate to the signup page
-  };
-
   return (
-    <div
-      className="h-screen flex items-center justify-center bg-gray-100"
-      style={{
-        backgroundImage: `url(${image})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <div className="bg-[#141F0E] bg-opacity-20 w-full h-full flex items-center justify-center">
-        <div className="max-w-md w-full bg-white bg-opacity-90 rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold mb-4 text-[#176446]">Login</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700 mb-2">
-                Email:
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={credentials.email}
-                onChange={onChange}
-                required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-700 mb-2">
-                Password:
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={credentials.password}
-                onChange={onChange}
-                required
-                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+    <div className="h-screen flex flex-col items-center min-h-screen bg-custom-background bg-cover bg-center">
+      <div className="w-full"><LandingNavbar/></div>
+      <div className="bg-[#141F0E] bg-opacity-0 w-[40vw] h-full flex items-center justify-center" id="section4">
+      <div className="w-full bg-[#97A760] bg-opacity-80 shadow-lg p-12 pt-8 h-[55vh] flex flex-col justify-center justify-items-center">
+        <h2 className="text-2xl font-bold mb-4 text-white">LOGIN</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block mb-1">
+              Email:
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={onChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 shadow-md"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="block mb-1">
+              Password:
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={onChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 shadow-md"
+            />
+          </div>
+          <div className="w-full flex justify-center items-center">
             <button
               type="submit"
-              className="w-full bg-[#176446] text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+              className="w-2/3 bg-[#3a4e1d] font-custom font-medium text-white py-2 mt-6 px-4 rounded-full hover:bg-[#304118] transition duration-300"
             >
               Login
             </button>
-          </form>
-          <p className="text-gray-700 mt-4 text-center">
-            New User?{" "}
-            <button
-              onClick={handleSignUpClick}
-              className="text-blue-500 hover:underline focus:outline-none"
-            >
-              Sign Up here
-            </button>
-          </p>
-        </div>
+          </div>
+        </form>
       </div>
+      </div>
+      <div className="w-full"> <Footer /> </div>
     </div>
   );
 }

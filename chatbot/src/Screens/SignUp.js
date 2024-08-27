@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import image from "../images/10.jpg";
+import LandingNavbar from "../components/LandingNavbar";
+import Footer from "../components/Footer";
 
 function SignUp() {
   let navigate = useNavigate();
@@ -43,87 +45,70 @@ function SignUp() {
     setCredentials({ ...credentials, [event.target.name]: event.target.value });
   };
 
-  const handleLoginClick = () => {
-    navigate("/login"); // Navigate to the login page
-  };
-
   return (
-    <div
-      className="h-screen flex items-center justify-center bg-neutral-light"
-      style={{
-        backgroundImage: `url(${image})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <div className="bg-[#141F0E] bg-opacity-20 w-full h-full flex items-center justify-center">
-        <div className="max-w-md w-full bg-white bg-opacity-90 rounded-xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold mb-4 text-[#176446]">Sign Up</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-neutral-dark mb-2">
-                Email:
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={credentials.email}
-                onChange={onChange}
-                required
-                className="w-full p-2 border border-neutral rounded focus:ring-2 focus:ring-secondary"
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="password"
-                className="block text-neutral-dark mb-2"
-              >
-                Password:
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={credentials.password}
-                onChange={onChange}
-                required
-                className="w-full p-2 border border-neutral rounded focus:ring-2 focus:ring-secondary"
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="confirmPassword"
-                className="block text-neutral-dark mb-2"
-              >
-                Confirm Password:
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={credentials.confirmPassword}
-                onChange={onChange}
-                required
-                className="w-full p-2 border border-neutral rounded focus:ring-2 focus:ring-secondary"
-              />
-            </div>
+    <div className="h-screen flex flex-col items-center min-h-screen bg-custom-background bg-cover bg-center">
+      <div className="w-full"><LandingNavbar /></div>
+      <div className="bg-[#141F0E] bg-opacity-0 w-[40vw] h-full flex items-center justify-center" id="section5">
+        <div className="w-full bg-[#97A760] bg-opacity-80 shadow-lg p-12 pt-8 h-[65vh] flex flex-col justify-center justify-items-center">
+        <h2 className="text-2xl font-bold mb-4 text-white">SIGN UP</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-neutral-dark mb-1">
+              Email:
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={credentials.email}
+              onChange={onChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 shadow-md"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-neutral-dark mb-1">
+              Password:
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={credentials.password}
+              onChange={onChange}
+              required
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 shadow-md"
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-neutral-dark mb-1"
+            >
+              Confirm Password:
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={credentials.confirmPassword}
+              onChange={onChange}
+              required
+              className="w-full p-2 border border-neutral rounded focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+          <div className="w-full flex justify-center items-center">
             <button
               type="submit"
-              className="w-full bg-[#176446] text-white py-2 px-4 rounded hover:bg-secondary-dark transition duration-300"
+              className="w-2/3 bg-[#3a4e1d] text-white py-2 mt-6 px-4 rounded-full hover:bg-[#304118] transition duration-300"
             >
               Sign Up
             </button>
-          </form>
-          <p className="text-gray-700 mt-4 text-center">
-            Already have an account?{" "}
-            <button
-              onClick={handleLoginClick}
-              className="text-blue-500 hover:underline focus:outline-none"
-            >
-              Login here
-            </button>
-          </p>
-        </div>
+          </div>
+          
+        </form>
       </div>
+      </div>
+      <div className="w-full"><Footer /></div>
+      
+      
     </div>
   );
 }

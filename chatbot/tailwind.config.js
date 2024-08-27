@@ -3,6 +3,15 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      boxShadow: {
+        'right-md': '1px 0 2px rgba(0, 0, 0, 0.5)',
+      },
+      backgroundImage: {
+        'custom-background': "url('images/10.jpg')",
+      },
+      fontFamily: {
+        custom: ['Roboto', 'sans-serif'],
+      },
       colors: {
         primary: {
           DEFAULT: "#1D4ED8", // Blue
@@ -22,6 +31,12 @@ module.exports = {
       },
     },
   },
+  rules: [
+    {
+      test: /\.(png|jpe?g|gif|svg)$/i,
+      type: 'asset/resource',
+    },
+  ],
   plugins: [],
 };
 

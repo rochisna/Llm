@@ -7,7 +7,7 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("bert");
+  const [selectedModel, setSelectedModel] = useState("bart");
   const [typing, setTyping] = useState(false);
   const navigate = useNavigate();
   const authToken = localStorage.getItem("authToken");
@@ -223,7 +223,7 @@ function Chat() {
               onChange={(e) => setSelectedModel(e.target.value)}
               className="p-2 border border-gray-300 rounded focus:outline-none bg-blue-100 text-blue-800"
             >
-              <option value="bert">bert</option>
+              <option value="bart">bart</option>
               <option value="gpt2">GPT-2</option>
               <option value="gemini">Gemini</option>
               <option value="llama3">Llama 3</option>
@@ -309,16 +309,16 @@ export default Chat;
 
 //   const fetchMessages = async () => {
 //     try {
-//       const response = await fetch(`http://localhost:5000/api/history/${id}`, {
+//       const response = await fetch(http://localhost:5000/api/history/${id}, {
 //         method: "GET",
 //         headers: {
 //           "Content-Type": "application/json",
-//           Authorization: `Bearer ${authToken}`,
+//           Authorization: Bearer ${authToken},
 //         },
 //       });
 
 //       if (!response.ok) {
-//         throw new Error(`Failed to fetch messages: ${response.statusText}`);
+//         throw new Error(Failed to fetch messages: ${response.statusText});
 //       }
 
 //       const data = await response.json();
@@ -334,12 +334,12 @@ export default Chat;
 //         method: "GET",
 //         headers: {
 //           "Content-Type": "application/json",
-//           Authorization: `Bearer ${authToken}`,
+//           Authorization: Bearer ${authToken},
 //         },
 //       });
 
 //       if (!response.ok) {
-//         throw new Error(`Failed to fetch messages: ${response.statusText}`);
+//         throw new Error(Failed to fetch messages: ${response.statusText});
 //       }
 
 //       const data = await response.json();
@@ -360,7 +360,7 @@ export default Chat;
 //           method: "POST",
 //           headers: {
 //             "Content-Type": "application/json",
-//             Authorization: `Bearer ${authToken}`,
+//             Authorization: Bearer ${authToken},
 //           },
 //           body: JSON.stringify(newMessage),
 //         });
@@ -381,10 +381,10 @@ export default Chat;
 //       }
 
 //       try {
-//         const response = await fetch(`http://localhost:8000/${selectedModel}`, {
+//         const response = await fetch(http://localhost:8000/${selectedModel}, {
 //           method: "POST",
 //           headers: {
-//             Authorization: `Bearer ${authToken}`,
+//             Authorization: Bearer ${authToken},
 //           },
 //           body: formData,
 //         });
@@ -430,7 +430,7 @@ export default Chat;
 //         method: "POST",
 //         headers: {
 //           "Content-Type": "application/json",
-//           Authorization: `Bearer ${authToken}`,
+//           Authorization: Bearer ${authToken},
 //         },
 //         body: JSON.stringify(botMessage),
 //       });
@@ -457,16 +457,16 @@ export default Chat;
 //             method: "POST",
 //             headers: {
 //               "Content-Type": "application/json",
-//               Authorization: `Bearer ${authToken}`,
+//               Authorization: Bearer ${authToken},
 //             },
 //             body: JSON.stringify({ name: title, messages: [] }),
 //           }
 //         );
 //         if (!response.ok) {
-//           throw new Error(`Failed to create new chat: ${response.statusText}`);
+//           throw new Error(Failed to create new chat: ${response.statusText});
 //         }
 //         const data = await response.json();
-//         navigate(`/chat/${data._id}`);
+//         navigate(/chat/${data._id});
 //         fetchHistory(); // Refresh chat history
 //       } catch (error) {
 //         console.error("Error creating new chat:", error);
@@ -497,7 +497,7 @@ export default Chat;
 //           {history.map((message, index) => (
 //             <div
 //               onClick={() => {
-//                 navigate(`/chat/${message._id}`);
+//                 navigate(/chat/${message._id});
 //               }}
 //               key={index}
 //               className="text-left text-white mb-4 cursor-pointer p-2 hover:bg-gray-700 rounded"
