@@ -16,6 +16,13 @@ import google.generativeai as genai
 import nltk
 from PIL import Image
 import io
+from deep_translator import GoogleTranslator
+from langdetect import detect, LangDetectException
+GOOGLE_API_KEY = 'AIzaSyD5WTskZ05HgCa8JM7ujiaf-YmirIYgFz4'
+genai.configure(api_key=GOOGLE_API_KEY)
+
+
+gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 
 nltk.download('punkt')
 app = FastAPI()
@@ -49,15 +56,17 @@ ensure_model_exists(bart_model_load_path, 'facebook/bart-large-cnn')
 bart_tokenizer = BartTokenizer.from_pretrained('facebook/bart-large-cnn')
 
 # Ensure GPT-2 model exists
-ensure_model_exists(gpt2_model_load_path, 'gpt2')
-gpt2_tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2')
+gpt2_tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+gpt2_model = GPT2LMHeadModel.from_pretrained("gpt2")
+# gpt2_model = GPT2LMHeadModel.from_pretrained('gpt2')
 
 # Load models
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = SentenceTransformer(model_load_path).to(device)
 bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).to(device)
-gpt2_model = GPT2LMHeadModel.from_pretrained(gpt2_model_load_path).to(device)
+# gpt2_model = GPT2LMHeadModel.from_pretrained(gpt2_model_load_path).to(device)
+# gpt2_tokenizer = GPT2Tokenizer.from_pretrained(gpt2_model_load_path).to(device)
+
 
 client = Groq(api_key="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")
 
@@ -119,6 +128,7 @@ def bart(query):
 def gpt2(query):
     input_text = query
     input_ids = gpt2_tokenizer.encode(input_text, return_tensors='pt')
+    print(input_text)
     output_ids = gpt2_model.generate(
         input_ids, 
         max_length=512, 
@@ -139,12 +149,39 @@ def connect_to_database(db_file):
     conn = sqlite3.connect(db_file)
     return conn
 
+
+def detect_language(text):
+    try:
+        return detect(text)
+    except LangDetectException:
+        return 'en'  # Default to English if detection fails
+
+
+def english_to_hindi(text):
+    translated_text = GoogleTranslator(source='en', target='hi').translate(text)
+    return translated_text
+
+def hindi_to_english(text):
+    translated_text = GoogleTranslator(source='hi', target='en').translate(text)
+    return translated_text
+
 @app.post("/bart")
 async def get_response(query: Query):
     try:
+           # Detect the language of the query
+        detected_language = detect_language(query.query)
+
+        # If the detected language is Hindi, translate it to English
+        if detected_language == 'hi':
+            query_in_english = hindi_to_english(query.query)
+        else:
+            query_in_english = query.query  # If it's already in English or another language
+
         conn = connect_to_database('final.db')
-        queryFinal = retrieve_embeddings_from_db(conn, query.query)
+        queryFinal = retrieve_embeddings_from_db(conn, query_in_english)
         result = bart(queryFinal)
+        if detected_language == 'hi':
+            result = english_to_hindi(result)
         return {"response": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -154,7 +191,7 @@ async def get_response(query: Query):
     try:
         conn = connect_to_database('final.db')
         queryFinal = retrieve_embeddings_from_db(conn, query.query)
-        result = gpt2(queryFinal)
+        result = bart(queryFinal[:400])
         return {"response": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -164,19 +201,57 @@ async def get_response(query: Query):
     try:
         messages = []
         conn = connect_to_database('final.db')
-        queryFinal = retrieve_embeddings_from_db(conn, query.query)
+
+        # Detect the language of the query
+        detected_language = detect_language(query.query)
+
+        # If the detected language is Hindi, translate it to English
+        if detected_language == 'hi':
+            query_in_english = hindi_to_english(query.query)
+        else:
+            query_in_english = query.query  # If it's already in English or another language
+
+        # Continue processing with the translated or original query
+        queryFinal = retrieve_embeddings_from_db(conn, query_in_english)
         messages.append({
             "role": "user", 
-            "content": "remember u are an llm which is used for icar-crida work so please dont mention abt context just give a simple answer .this are" + queryFinal + "based on the context give me the answer and just give answer dont mention abt the data given to you                                               " 
+            "content": ("remember you are an LLM used for ICAR-CRIDA work so please don't mention the context. "
+                        "Just give a simple answer. Based on the context, give me the answer and just give the answer, "
+                        "don't mention the data given to you. " + queryFinal)
         })
+        
         chat_completion = client.chat.completions.create(
             messages=messages,
             model="llama3-8b-8192",
         )
+        
         result = chat_completion.choices[0].message.content
+
+        # If the original query was in Hindi, translate the result back to Hindi
+        if detected_language == 'hi':
+            result = english_to_hindi(result)
+
         return {"response": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/gemini")
+async def get_response(query: Query):
+    # response = gemini_model.generate_content(query.query)
+    # return {"response": response.text}
+    try:
+        messages = []
+        conn = connect_to_database('final.db')
+        queryFinal = retrieve_embeddings_from_db(conn, query.query)
+
+        query_context = "based on this content "+ queryFinal+ "give me the answer for this question "+query.query  +"try to give me with in 100 words"                                   
+        response = gemini_model.generate_content(query_context)
+
+        return {"response": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 if __name__ == "__main__":
     import uvicorn

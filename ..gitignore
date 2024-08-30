@@ -1,0 +1,6 @@
+./venv
+./LLM_server/venv
+./chatbot/node_modules
+./backend/node_modules
+./LLM_server/models
+./LLM_server/final.db

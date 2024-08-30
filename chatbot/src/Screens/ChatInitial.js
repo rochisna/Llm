@@ -1,3 +1,5 @@
+// ChatInitial.js
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -181,12 +183,12 @@ function Chat() {
   }, [messages]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <div className="w-1/4 bg-gray-900 text-white p-6">
-        <h2 className="text-2xl font-semibold mb-6">Chat History</h2>
+    <div className="flex min-h-screen max-h-screen bg-gray-100">
+      <div className="w-1/4 bg-[#5d7442] text-white p-6">
+        <h2 className="text-2xl font-semibold font-custom mb-6">CHAT HISTORY</h2>
         <button
           onClick={createChat}
-          className="w-full bg-blue-500 text-white py-2 px-4 mb-6 rounded hover:bg-blue-600 transition duration-300 focus:outline-none"
+          className="w-full bg-[#769246] font-custom text-white py-2 px-4 mb-6 rounded hover:bg-[#4f612f] transition duration-300 focus:outline-none"
         >
           New Chat
         </button>
@@ -195,7 +197,7 @@ function Chat() {
             <div
               onClick={() => { navigate(`/chat/${message._id}`); }}
               key={index}
-              className="text-left text-white mb-4 cursor-pointer p-2 hover:bg-gray-700 rounded"
+              className="text-left text-white mb-4 cursor-pointer p-2 hover:bg-[#769246] hover:bg-opacity-80 rounded"
             >
               {message.name}
             </div>
@@ -203,28 +205,28 @@ function Chat() {
         </div>
       </div>
       <div className="flex-1 flex flex-col">
-  <div className="flex justify-between items-center p-4 bg-white border-b border-gray-300 w-full">
-    <h1 className="text-2xl font-bold">Chat</h1>
+  <div className="flex justify-between items-center p-4 px-6 bg-[#e8ede0] border-b border-gray-300 w-full">
+    <h1 className="text-2xl font-bold font-custom">CHAT</h1>
     <div className="flex items-center">
-      <label className="mr-4 text-lg font-semibold text-gray-700">
+      <label className="mr-4 text-lg font-semibold font-custom">
         Current Model:
-        <span className="ml-2 text-xl text-blue-800">{selectedModel}</span>
+        <span className="ml-2 text-xl text-[#3c581c]">{selectedModel}</span>
       </label>
       <select
         value={selectedModel}
         onChange={(e) => setSelectedModel(e.target.value)}
-        className="p-2 border border-gray-300 rounded focus:outline-none bg-blue-100 text-blue-800"
+        className="p-2 border border-gray-300 rounded font-custom focus:outline-none bg-white text-[#24301a]"
       >
-        <option value="bart">bart</option>
-        <option value="gpt2">GPT-2</option>
-        <option value="gemini">Gemini</option>
-        <option value="llama3">Llama 3</option>
+        <option value="bart" className="text-[#24301a] font-custom">bart</option>
+        <option value="gpt2" className="text-[#24301a] font-custom">GPT-2</option>
+        <option value="gemini" className="text-[#24301a] font-custom">Gemini</option>
+        <option value="llama3" className="text-[#24301a] font-custom">Llama 3</option>
       </select>
     </div>
   </div>
   
 
-        <div className="flex-1 overflow-y-auto p-6 bg-white">
+        <div className="flex-1 overflow-y-auto p-6 px-44 bg-[#f4f6f0]">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -233,8 +235,8 @@ function Chat() {
               }`}
             >
               <span
-                className={`inline-block p-4 rounded-lg shadow-sm ${
-                  message.sender === "user" ? "bg-blue-100" : "bg-green-100"
+                className={`inline-block p-4 rounded-3xl shadow-sm ${
+                  message.sender === "user" ? "bg-[#bbc9a3] rounded-ee-none max-w-xl" : "bg-[#8da465] rounded-es-none"
                 }`}
               >
                 {message.text}
@@ -243,24 +245,24 @@ function Chat() {
           ))}
           {typing && (
             <div className="self-start text-left text-green-500 mb-2">
-              <span className="inline-block p-2 bg-gray-300 rounded-lg shadow-sm">
+              <span className="inline-block p-2 rounded-3xl bg-[#8da465] rounded-es-none shadow-sm">
                 Typing...
               </span>
             </div>
           )}
         </div>
-        <div className="p-6 bg-gray-100 border-t border-gray-300">
+        <div className="p-4 pb-8 px-44 bg-transparent">
           <div className="flex">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 p-4 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 p-4 px-8 border border-gray-300 rounded-full bg-[#d1dbc1] focus:outline-none focus:ring-2 focus:ring-[#769246] focus:bg-[#bbc9a3]"
               placeholder="Type your message..."
             />
             <button
               onClick={handleSend}
-              className="ml-4 bg-blue-500 text-white py-4 px-8 rounded hover:bg-blue-600 transition duration-300 focus:outline-none"
+              className="ml-4 bg-[#769246] font-custom text-white py-4 px-8 rounded-full hover:bg-[#627a3a] transition duration-300 focus:outline-none"
             >
               Send
             </button>

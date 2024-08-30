@@ -4,6 +4,8 @@ import LandingNavbar from "../components/LandingNavbar";
 import Footer from "../components/Footer";
 import image from "../images/10.jpg";
 import { useState, useEffect } from "react";
+import img1 from "../images/chat.jpg";
+import img2 from "../images/chatHistory.jpg";
 import "../cssStyles/lpCSS.css";
 
 function LandingPage() {
@@ -67,8 +69,20 @@ function LandingPage() {
               </div>
             </div>
           </div>
-          <div id="section2" className="w-full h-[78vh] flex flex-col items-center justify-center text-center p-4">
-            <h2>qwertyuiop asdfghjkl sdfghjk</h2>
+          <div id="section2" className="w-full h-[78vh] flex flex-row items-center justify-center text-center p-4">
+            <div className="flex flex-col justify-center items-end w-1/2 h-full p-4">
+              <div className="w-3/4 mb-10">
+                <h2 className="text-white font-custom text-2xl">Chat With DIFFERENT LLMs</h2>
+              </div>
+              
+              <img src={img1} className="h-[35vh] rounded-3xl border-4 border-white" />
+            </div>
+            <div className="flex flex-col justify-center items-start w-1/2 h-full p-4">
+              <div className="w-3/4 mb-10">
+                <h2 className="text-white font-custom text-2xl">While SAVING Your Chat History</h2>
+              </div>
+              <img src={img2} className="h-[35vh] rounded-3xl  border-4 border-white"/>
+            </div>
           </div>
           <div id="section3" className="w-full h-[78vh] flex flex-col items-center justify-center text-center p-4">
             <h2 className="font-semibold text-white text-3xl">contact us</h2>
