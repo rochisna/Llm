@@ -18,7 +18,7 @@ from PIL import Image
 import io
 from deep_translator import GoogleTranslator
 from langdetect import detect, LangDetectException
-GOOGLE_API_KEY = 'AIzaSyD5WTskZ05HgCa8JM7ujiaf-YmirIYgFz4'
+GOOGLE_API_KEY = 'AIzaSyDHjVCPUe9UXoBzDtDTOyYuXmvAHDYAduk'
 genai.configure(api_key=GOOGLE_API_KEY)
 
 
@@ -68,7 +68,7 @@ bart_model = BartForConditionalGeneration.from_pretrained(bart_model_load_path).
 # gpt2_tokenizer = GPT2Tokenizer.from_pretrained(gpt2_model_load_path).to(device)
 
 
-client = Groq(api_key="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")
+client = Groq(api_key="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")
 
 # CORS settings
 origins = [
